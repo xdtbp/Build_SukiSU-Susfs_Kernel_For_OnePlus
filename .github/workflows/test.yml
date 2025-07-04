@@ -1,11 +1,11 @@
-name: oneplus_ace3_pro_v
+name: 6.1.118（Oneplus Ace 3 Pro ）
 on:
   workflow_dispatch:
     inputs:
       KERNEL_SUFFIX:
         description: '内核名称修改(可改中文和emoji)'
-        required: true
-        default: '-酷安KL_Xydwg01'
+        required: false
+        default: ' '
       KERNEL_TIME:
        description: "内核构建日期更改(默认为原厂)"
        required: true
@@ -256,6 +256,9 @@ jobs:
          sed -i 's/${scm_version}//' ./common/scripts/setlocalversion
          sudo sed -i 's/-4k/${{ github.event.inputs.KERNEL_SUFFIX }}/g' ./common/arch/arm64/configs/gki_defconfig
           
+      - name: Verify lld installation
+        run: |
+         ld.lld --version
 
       - name: Build Kernel
         run: |
