@@ -88,29 +88,30 @@ jobs:
         
       - name: Set up susfs
         run: |
-           cd kernel_workspace
-           git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-android14-6.1
-           git clone https://github.com/ShirkNeko/SukiSU_patch.git
+          cd kernel_workspace
 
-           cd kernel_workspace        
-           cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-android14-6.1.patch ./common/
-           cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
-           cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
-           #lz4k
-           cp -r ../SukiSU_patch/other/zram/lz4k/include/linux/* ./common/include/linux
-           cp -r ../SukiSU_patch/other/zram/lz4k/lib/* ./common/lib
-           cp -r ../SukiSU_patch/other/zram/lz4k/crypto/* ./common/crypto
-           cp -r ../SukiSU_patch/other/zram/lz4k_oplus ./common/lib/
-           # Apply patches
-           cd ./common
+          # 克隆补丁仓库
+          git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-android14-6.1
+          git clone https://github.com/ShirkNeko/SukiSU_patch.git
 
-           sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-android14-6.1.patch
-           sed -i '/#include <trace\/hooks\/fs.h>/d' 50_add_susfs_in_gki-android14-6.1.patch
+          # 复制补丁文件
+          cp susfs4ksu/kernel_patches/50_add_susfs_in_gki-android14-6.1.patch ./
+          cp susfs4ksu/kernel_patches/fs/* ./fs/
+          cp susfs4ksu/kernel_patches/include/linux/* ./include/linux/
 
-           patch -p1 < 50_add_susfs_in_gki-android14-6.1.patch || true
-           cp ../../SukiSU_patch/hooks/syscall_hooks.patch ./
-           patch -p1 -F 3 < syscall_hooks.patch
-           echo "完成"
+          # lz4k
+          cp -r SukiSU_patch/other/zram/lz4k/include/linux/* ./include/linux/
+          cp -r SukiSU_patch/other/zram/lz4k/lib/* ./lib/
+          cp -r SukiSU_patch/other/zram/lz4k/crypto/* ./crypto/
+          cp -r SukiSU_patch/other/zram/lz4k_oplus ./lib/
+
+          # 打补丁
+          sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-android14-6.1.patch
+          sed -i '/#include <trace\/hooks\/fs.h>/d' 50_add_susfs_in_gki-android14-6.1.patch
+          patch -p1 < 50_add_susfs_in_gki-android14-6.1.patch || true
+          cp SukiSU_patch/hooks/syscall_hooks.patch ./
+          patch -p1 -F 3 < syscall_hooks.patch
+          echo "完成"
       
       - name: Apply HMBird GKI patch
         run: |
