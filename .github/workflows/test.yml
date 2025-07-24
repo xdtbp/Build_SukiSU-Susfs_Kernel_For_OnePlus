@@ -247,16 +247,17 @@ jobs:
       - name: Build Kernel
         run: |
           export KBUILD_BUILD_TIMESTAMP="${{ github.event.inputs.KERNEL_TIME }}"
-          sudo apt install -y libelf-dev llvm lld bc bison flex libssl-dev
+          sudo apt-get install -y libelf-dev llvm lld bc bison flex libssl-dev
           cd kernel_workspace
-          make -j$(nproc) \
+          # 使用 OnePlus 官方 defconfig
+          make O=out vendor/audi_user_defconfig
+          make -j$(nproc) O=out \
                ARCH=arm64 \
                LLVM=1 \
                CC=clang \
                CROSS_COMPILE=aarch64-linux-gnu- \
                LD=ld.lld \
-               O=out \
-               "$([ -f arch/arm64/configs/vendor/audi_defconfig ] && echo vendor/audi_defconfig || echo defconfig)" \
+               HOSTLD=ld.lld \
                all
 
       - name: Apply Linux Patch
