@@ -115,7 +115,7 @@ jobs:
       
       - name: Apply HMBird GKI patch
         run: |
-         cd kernel_workspace/common/drivers
+         cd kernel_workspace/drivers
          cat << 'EOF' > hmbird_patch.c
          #include <linux/init.h>
          #include <linux/module.h>
@@ -198,7 +198,7 @@ jobs:
       - name: Apply lz4kd Patches
         if: ${{inputs.enable_feature_y }}
         run: |
-          cd kernel_workspace/common
+          cd kernel_workspace
             cp ../../SukiSU_patch/other/zram/zram_patch/6.1/lz4kd.patch ./
             patch -p1 -F 3 < lz4kd.patch || true
            
@@ -262,12 +262,12 @@ jobs:
          export PATH="$GITHUB_WORKSPACE/kernel_workspace/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
          export PATH="/usr/lib/ccache:$PATH"
          sudo apt install -y libelf-dev llvm lld
-         cd kernel_workspace/common
+         cd kernel_workspace
          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+=-Wno-error gki_defconfig all
           
       - name: Apply Linux Patch
         run: |
-         cd kernel_workspace/common/out/arch/arm64/boot
+         cd kernel_workspace/out/arch/arm64/boot
          curl -LO https://github.com/ShirkNeko/SukiSU_KernelPatch_patch/releases/download/0.11-beta/patch_linux
          chmod +x patch_linux
          ./patch_linux
@@ -279,7 +279,7 @@ jobs:
          git clone https://github.com/Kernel-SU/AnyKernel3.git --depth=1      
          rm -rf ./AnyKernel3/.git
          rm -rf ./AnyKernel3/push.sh
-         cp kernel_workspace/common/out/arch/arm64/boot/Image ./AnyKernel3/
+         cp kernel_workspace/out/arch/arm64/boot/Image ./AnyKernel3/
 
       - name: Upload AnyKernel3
         uses: actions/upload-artifact@v4
