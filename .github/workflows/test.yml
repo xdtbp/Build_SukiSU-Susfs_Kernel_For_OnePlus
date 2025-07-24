@@ -1,4 +1,4 @@
-name: 6.1.118（Oneplus Ace 3 Pro ）
+name: 6.1.57（Oneplus Ace 3 V ）
 on:
   workflow_dispatch:
     inputs:
@@ -77,7 +77,7 @@ jobs:
             
       - name: Set up SukiSU
         run: |
-         cd kernel_workspace/kernel_platform
+         cd kernel_workspace
          curl -LSs "https://raw.githubusercontent.com/ShirkNeko/SukiSU-Ultra/main/kernel/setup.sh" | bash -s susfs-dev
          cd ./KernelSU
          KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 10606)
@@ -114,7 +114,7 @@ jobs:
       
       - name: Apply HMBird GKI patch
         run: |
-         cd kernel_workspace/kernel_platform/common/drivers
+         cd kernel_workspace/common/drivers
          cat << 'EOF' > hmbird_patch.c
          #include <linux/init.h>
          #include <linux/module.h>
@@ -197,13 +197,13 @@ jobs:
       - name: Apply lz4kd Patches
         if: ${{inputs.enable_feature_y }}
         run: |
-          cd kernel_workspace/kernel_platform/common
+          cd kernel_workspace/common
             cp ../../SukiSU_patch/other/zram/zram_patch/6.1/lz4kd.patch ./
             patch -p1 -F 3 < lz4kd.patch || true
            
       - name: Add SUSFS Configuration Settings
         run: |
-          cd kernel_workspace/kernel_platform
+          cd kernel_workspace
           echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
 
           # Add VFS configuration settings
@@ -241,7 +241,7 @@ jobs:
       - name: Add KPM Configuration Settings
         if: ${{inputs.enable_feature_x }}
         run: |
-          cd kernel_workspace/kernel_platform
+          cd kernel_workspace
           echo "CONFIG_KPM=y" >> ./common/arch/arm64/configs/gki_defconfig
          
           #Remove check_defconfig
@@ -251,22 +251,22 @@ jobs:
           
       - name: Add make name
         run: |
-         cd kernel_workspace/kernel_platform
+         cd kernel_workspace
          sed -i 's/${scm_version}//' ./common/scripts/setlocalversion
          sudo sed -i 's/-4k/${{ github.event.inputs.KERNEL_SUFFIX }}/g' ./common/arch/arm64/configs/gki_defconfig
 
       - name: Build Kernel
         run: |
          export KBUILD_BUILD_TIMESTAMP="${{ github.event.inputs.KERNEL_TIME }}"
-         export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
+         export PATH="$GITHUB_WORKSPACE/kernel_workspace/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
          export PATH="/usr/lib/ccache:$PATH"
          sudo apt install -y libelf-dev llvm lld
-         cd kernel_workspace/kernel_platform/common
+         cd kernel_workspace/common
          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+=-Wno-error gki_defconfig all
           
       - name: Apply Linux Patch
         run: |
-         cd kernel_workspace/kernel_platform/common/out/arch/arm64/boot
+         cd kernel_workspace/common/out/arch/arm64/boot
          curl -LO https://github.com/ShirkNeko/SukiSU_KernelPatch_patch/releases/download/0.11-beta/patch_linux
          chmod +x patch_linux
          ./patch_linux
@@ -278,7 +278,7 @@ jobs:
          git clone https://github.com/Kernel-SU/AnyKernel3.git --depth=1      
          rm -rf ./AnyKernel3/.git
          rm -rf ./AnyKernel3/push.sh
-         cp kernel_workspace/kernel_platform/common/out/arch/arm64/boot/Image ./AnyKernel3/
+         cp kernel_workspace/common/out/arch/arm64/boot/Image ./AnyKernel3/
 
       - name: Upload AnyKernel3
         uses: actions/upload-artifact@v4
