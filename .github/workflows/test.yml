@@ -68,14 +68,13 @@ jobs:
          chmod a+x ~/repo
          sudo mv ~/repo /usr/local/bin/repo
 
+     
       - name: Initialize repo and sync
         run: |
-         mkdir kernel_workspace && cd kernel_workspace
-         repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/sm7675 -m oneplus_ace3v_v.xml --depth=1
-         repo --trace sync -c -j$(nproc --all) --no-tags
-         rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
-         rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
-         
+           git clone --depth=1 --branch=oneplus/sm7675_u_14.0.1_oneplus_ace3v \
+            https://github.com/OnePlusOSS/android_kernel_oneplus_sm7675.git \
+            kernel_workspace
+            
       - name: Set up SukiSU
         run: |
          cd kernel_workspace/kernel_platform
