@@ -251,10 +251,13 @@ jobs:
           export KBUILD_BUILD_TIMESTAMP="${{ github.event.inputs.KERNEL_TIME }}"
           sudo apt-get install -y libelf-dev llvm lld bc bison flex libssl-dev
           cd kernel_workspace
-          # 移除 oplus_cpu 依赖（临时绕过）
-          sed -i '/kernel\/oplus_cpu\/sched\/Kconfig/d' init/Kconfig
-          # 使用主线 GKI defconfig
-          make O=out gki_defconfig
+
+          # 创建缺失目录（临时绕过）
+          mkdir -p mm/mm_osvelte kernel/oplus_cpu/sched
+          touch mm/mm_osvelte/Kconfig kernel/oplus_cpu/sched/Kconfig
+
+          # 使用主线 defconfig
+          make O=out defconfig
           make -j$(nproc) O=out \
                ARCH=arm64 \
                LLVM=1 \
