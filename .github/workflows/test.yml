@@ -251,8 +251,10 @@ jobs:
           export KBUILD_BUILD_TIMESTAMP="${{ github.event.inputs.KERNEL_TIME }}"
           sudo apt-get install -y libelf-dev llvm lld bc bison flex libssl-dev
           cd kernel_workspace
-          # 使用通用 gki 配置，跳过 oplus_cpu
-          make O=out vendor/sm7675_gki_defconfig
+          # 移除 oplus_cpu 依赖（临时绕过）
+          sed -i '/kernel\/oplus_cpu\/sched\/Kconfig/d' init/Kconfig
+          # 使用主线 GKI defconfig
+          make O=out gki_defconfig
           make -j$(nproc) O=out \
                ARCH=arm64 \
                LLVM=1 \
