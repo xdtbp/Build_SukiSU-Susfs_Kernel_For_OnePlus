@@ -237,22 +237,16 @@ jobs:
           [ -f "$defcfg" ] || defcfg=arch/arm64/configs/defconfig
           echo "CONFIG_KPM=y" >> "$defcfg"
 
-      - name: Add make name
-        run: |
-          cd kernel_workspace
-          sed -i 's/${scm_version}//' scripts/setlocalversion
-          sed -i "s/-4k/${{ github.event.inputs.KERNEL_SUFFIX }}/g" \
-              arch/arm64/configs/vendor/audi_defconfig \
-              || sed -i "s/-4k/${{ github.event.inputs.KERNEL_SUFFIX }}/g" \
-                 arch/arm64/configs/defconfig
-
       - name: Build Kernel
         run: |
           export KBUILD_BUILD_TIMESTAMP="${{ github.event.inputs.KERNEL_TIME }}"
           sudo apt-get install -y libelf-dev llvm lld bc bison flex libssl-dev
           cd kernel_workspace
 
-          # 创建缺失目录（临时绕过）
+          # 清理可能存在的文件或符号链接
+          rm -f mm/mm_osvelte kernel/oplus_cpu
+
+          # 创建缺失目录
           mkdir -p mm/mm_osvelte kernel/oplus_cpu/sched
           touch mm/mm_osvelte/Kconfig kernel/oplus_cpu/sched/Kconfig
 
